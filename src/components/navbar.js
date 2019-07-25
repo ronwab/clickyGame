@@ -5,14 +5,15 @@ const styles = {
   height: "100px"
 };
 
-function Navbar() {
+const Navbar = props => {
   return (
     <div>
       <nav style={styles}>
         <a className="navbar-brand">Navbar</a>
+        <p onClick={props.increaseCount}> Count is {props.count}</p>
       </nav>
     </div>
   );
-}
+};
 
 export default Navbar;

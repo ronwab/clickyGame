@@ -1,13 +1,19 @@
 import React, { Component } from "react";
 import Navbar from "./components/navbar";
-import Body from "./components/body";
-import Cards from "./imagesource/images.json";
+import Body from "./components/body/body";
+import cards from "./imagesource/images.json";
+import Container from "./components/Container";
 
 class App extends Component {
   state = {
-    Cards
+    cards,
+    count: 0,
+    topScore: 0
   };
 
+  componentDidMount() {
+    this.setState({ cards: this.shuffleCards(this.state.cards) });
+  }
   shuffle = array => {
     let i = 0,
       j = 0,
@@ -21,32 +27,78 @@ class App extends Component {
     }
     return array;
   };
-  shuffleCards = () => {
-    console.log("here");
+  shuffleCards = newdata => {
     this.setState({
-      Cards: this.shuffle(this.state.Cards)
+      cards: this.shuffle(newdata)
     });
-    console.log("here");
-    console.log(Cards);
+    return newdata;
+    console.log(cards);
+  };
+
+  resetCards = resetCards => {
+    const cardReset = resetCards.map(card => ({ ...card, clicked: false }));
+    return this.shuffleCards(cardReset);
+  };
+
+  handleGuessCorrectly = newCards => {
+    const { count, topScore } = this.state;
+    const newCount = count + 1;
+    console.log(newCount);
+
+    const newTopscore = Math.max(newCount, topScore);
+
+    this.setState({
+      cards: this.shuffleCards(newCards),
+      count: newCount,
+      topScore: newTopscore
+    });
+  };
+  handleWrongGuess = newCards => {
+    this.setState({
+      cards: this.resetCards(newCards),
+      count: 0
+    });
+  };
+
+  handleCardClicks = id => {
+    let guessCorrectly = false;
+    const newCards = this.state.cards.map(card => {
+      const newcard = { ...card };
+      if (newcard.id === id) {
+        if (!newcard.clicked) {
+          newcard.clicked = true;
+          guessCorrectly = true;
+        }
+      }
+      return newcard;
+    });
+    console.log(newCards);
+
+    guessCorrectly
+      ? this.handleGuessCorrectly(newCards)
+      : this.handleWrongGuess(newCards);
   };
 
   render() {
     return (
       <div>
-        <Navbar />
+        <Navbar count={this.state.count} topScore={this.state.topScore} />
         <div className="row">
           <div className="col-sm-3">
-            {this.state.Cards.map(card => {
-              return (
+            <Container>
+              {this.state.cards.map(card => (
                 <Body
                   key={card.id}
-                  name={card.imgname}
+                  id={card.id}
                   href={card.imageUrl}
-                  clickMe={this.shuffleCards}
-                  onHover={this.shakeOnHover}
+                  // clickMe={this.shuffleCards}
+
+                  handleClick={this.handleCardClicks}
+                  // increaseCount={this.handleCount}
+                  // onHover={this.shakeOnHover}
                 />
-              );
-            })}
+              ))}
+            </Container>
           </div>
         </div>
       </div>
